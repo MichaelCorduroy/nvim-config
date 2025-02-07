@@ -1,23 +1,19 @@
--- Custom nvim config written by michaelcorduroy in 2024
---
 
 -- Automatically reload files when changed outside of nvim
 vim.o.autoread = true
 
-
-
 -- Set leader to hashtag
 vim.g.mapleader = '#'
-
 
 -- Map "+y to <leader>y in normal and visual mode
 vim.api.nvim_set_keymap('n', '<leader>w', '"+y', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('v', '<leader>w', '"+y', { noremap = true, silent = true })
 
-
--- disable netrw for nvim-tree
-vim.g.loaded_netrw = 1
-vim.g.loaded_netrwPlugin = 1
+-- Example key mappings for Telescope commands
+vim.api.nvim_set_keymap('n', '<leader>ff', "<cmd>lua require('telescope.builtin').find_files()<CR>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<leader>fg', "<cmd>lua require('telescope.builtin').live_grep()<CR>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<leader>fb', "<cmd>lua require('telescope.builtin').buffers()<CR>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<leader>fh', "<cmd>lua require('telescope.builtin').help_tags()<CR>", { noremap = true, silent = true })
 
 
 --Add line numbers
@@ -47,6 +43,7 @@ local function resize_current_window(width)
     end
 end
 
+
 -- Create a user command `vs size` for resizing the current window
 vim.api.nvim_create_user_command('VsSize', function(opts)
     resize_current_window(tonumber(opts.args))
@@ -56,12 +53,6 @@ end, { nargs = 1 })
 -- Set 'cursor at end line ($)' to m in normal and visual mode
 vim.api.nvim_set_keymap('n', 'm', '$', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('v', 'm', '$', { noremap = true, silent = true })
-
--- Example key mappings for Telescope commands
-vim.api.nvim_set_keymap('n', '<leader>ff', "<cmd>lua require('telescope.builtin').find_files()<CR>", { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader>fg', "<cmd>lua require('telescope.builtin').live_grep()<CR>", { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader>fb', "<cmd>lua require('telescope.builtin').buffers()<CR>", { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader>fh', "<cmd>lua require('telescope.builtin').help_tags()<CR>", { noremap = true, silent = true })
 
 
 -- Automatically reload files without prompting
@@ -75,47 +66,40 @@ vim.api.nvim_create_autocmd("BufEnter", {
     end
   end
 })
-
 --Plugins using Lazy.nvim
 -- Set the runtime path to include lazy.nvim
-vim.opt.rtp:prepend("~/.local/share/nvim/lazy/lazy.nvim")
-
+local lazypath = vim.fn.stdpath("data") .. "/site/pack/lazy/start/lazy.nvim"
+vim.opt.rtp:prepend(lazypath)
 
 -- Initialize Lazy.nvim for plugin management
 require('lazy').setup({
     -- Add your plugins here
-
-    -- Lualine status line
+-- Lualine status line
     {
         'nvim-lualine/lualine.nvim',
-        requires = { 'nvim-tree/nvim-web-devicons', opt = true },
+        requires = { 'nvim-tree/nvim-web-devicons'},
     },
 
-    -- Codeium for code completion
+-- Alpha dashboard
+    {
+	'goolord/alpha-nvim',
+	requires = { 'nvim-tree/nvim-web-devicons' },
+	config = function ()
+	    require'alpha'.setup(require'alpha.themes.dashboard'.config)
+	end
+    },
+-- Codeium for code completion
     {
         'Exafunction/codeium.vim',
         event = 'BufEnter', -- Load on buffer enter
     },
-
-    -- TokyoNight theme
-    {
-        'folke/tokyonight.nvim',
-        lazy = false,
-        priority = 1000,
-    },
-
-    -- Treesitter for syntax highlighting
-    {
-        'nvim-treesitter/nvim-treesitter',
-        run = ':TSUpdate',
-    },
-
-    -- Telescope for fuzzy finding
+-- Telescope for fuzzy finding
     {
         'nvim-telescope/telescope.nvim',
         requires = { {'nvim-lua/plenary.nvim'} },
     },
-
+    --Nightfox theme
+    { "EdenEast/nightfox.nvim" },
     -- Nvim-Tree file explorer
     {
         'nvim-tree/nvim-tree.lua',
@@ -132,42 +116,14 @@ require('lazy').setup({
             }
         end,
     }
-})
 
+})
 -- Set key mapping for toggling Nvim-Tree in normal and visual mode
 vim.api.nvim_set_keymap('n', '<Leader>n', ':NvimTreeToggle<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('v', '<Leader>n', ':NvimTreeToggle<CR>', { noremap = true, silent = true })
 
 
- require("tokyonight").setup({
-  style = "storm", -- Available styles: 'storm', 'night', 'moon'
-  transparent = false, -- Enable/Disable transparent background
-  terminal_colors = true, -- Adjust terminal colors based on the theme
-  styles = {
-    comments = { italic = false },
-    keywords = { italic = true },
-    functions = { bold = true },
-  },
-  -- Add any additional customization here
-})
-
--- Activate the colorscheme
-vim.cmd([[colorscheme tokyonight]])
-
--- Set cursor color white
-vim.api.nvim_set_hl(0, "Cursor", { fg = "black", bg = "white" })
-
---treesitter requirements
-require('nvim-treesitter.configs').setup {
-  ensure_installed =  
-  { "bash", "c", "javascript", "json", "lua", "python", "typescript", "tsx", "css", "rust", "java", "yaml" }, 
-  highlight = {
-    enable = true,
-    additional_vim_regex_highlighting = false
-  },
-  
-  }
-
+--
 
 require('lualine').setup {
   options = {
@@ -196,7 +152,53 @@ require('lualine').setup {
   tabline = {},
   extensions = {}
 }
+-- Default options
+require('nightfox').setup({
+  options = {
+    -- Compiled file's destination location
+    compile_path = vim.fn.stdpath("cache") .. "/nightfox",
+    compile_file_suffix = "_compiled", -- Compiled file suffix
+    transparent = false,     -- Disable setting background
+    terminal_colors = true,  -- Set terminal colors (vim.g.terminal_color_*) used in `:terminal`
+    dim_inactive = false,    -- Non focused panes set to alternative background
+    module_default = true,   -- Default enable value for modules
+    colorblind = {
+      enable = false,        -- Enable colorblind support
+      simulate_only = false, -- Only show simulated colorblind colors and not diff shifted
+      severity = {
+        protan = 0,          -- Severity [0,1] for protan (red)
+        deutan = 0,          -- Severity [0,1] for deutan (green)
+        tritan = 0,          -- Severity [0,1] for tritan (blue)
+      },
+    },
+    styles = {               -- Style to be applied to different syntax groups
+      comments = "NONE",     -- Value is any valid attr-list value `:help attr-list`
+      conditionals = "NONE",
+      constants = "NONE",
+      functions = "NONE",
+      keywords = "NONE",
+      numbers = "NONE",
+      operators = "NONE",
+      strings = "NONE",
+      types = "NONE",
+      variables = "NONE",
+    },
+    inverse = {             -- Inverse highlight for different types
+      match_paren = false,
+      visual = false,
+      search = false,
+    },
+    modules = {             -- List of various plugins and additional options
+      -- ...
+    },
+  },
+  palettes = {},
+  specs = {},
+  groups = {},
+})
 
+-- setup must be called before loading
+vim.cmd("colorscheme nightfox")
 
 --Simplify copy command to just 'C'
 vim.api.nvim_set_keymap('v', ':C', '"+y', { noremap = true, silent = true })
@@ -240,5 +242,22 @@ function map_in_terminal_mode(lhs, rhs)
     vim.api.nvim_set_keymap('t', lhs, rhs, { noremap = true, silent = true })
 end
 
--- Map Ctrl-n to toggle from terminal to normal mode
-map_in_terminal_mode('<C-w>', '<C-\\><C-n>')
+-- :ap Ctrl-n to toggle from terminal to normal mode
+map_in_terminal_mode('<C-w>', '<C-\\><C-n:')
+-- Activate the colorscheme
+
+-- Map <leader>9 to close current window
+vim.keymap.set("n", "<leader>9", "<cmd>close<CR>", { noremap = true, silent = true })
+
+-- Map <leader>0 to open a new terminal
+vim.keymap.set("n", "<leader>0", "<cmd>belowright split | terminal<CR>", { noremap = true, silent = true })
+
+-- Map Ctrl-w to toggle from terminal to normal mode
+vim.keymap.set("t", "<C-w>", "<C-\\><C-n>", { noremap = true, silent = true })
+
+
+
+
+
+
+
