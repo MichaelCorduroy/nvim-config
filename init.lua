@@ -9,6 +9,10 @@ vim.g.mapleader = '#'
 vim.api.nvim_set_keymap('n', '<leader>w', '"+y', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('v', '<leader>w', '"+y', { noremap = true, silent = true })
 
+
+-- map the option key to ':w' (save file)
+vim.api.nvim_set_keymap('n', '<leader>w', ':w<CR>', { noremap = true, silent = true })
+
 -- Example key mappings for Telescope commands
 vim.api.nvim_set_keymap('n', '<leader>ff', "<cmd>lua require('telescope.builtin').find_files()<CR>", { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<leader>fg', "<cmd>lua require('telescope.builtin').live_grep()<CR>", { noremap = true, silent = true })
@@ -55,6 +59,10 @@ vim.api.nvim_set_keymap('n', 'm', '$', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('v', 'm', '$', { noremap = true, silent = true })
 
 
+
+
+
+
 -- Automatically reload files without prompting
 vim.api.nvim_create_augroup("auto_reload", { clear = true })
 vim.api.nvim_create_autocmd("BufEnter", {
@@ -98,8 +106,21 @@ require('lazy').setup({
         'nvim-telescope/telescope.nvim',
         requires = { {'nvim-lua/plenary.nvim'} },
     },
+
+    -- Indent lines
+    {
+	    "lukas-reineke/indent-blankline.nvim", 
+    		opts = {
+		    show_current_context = true,
+		    show_current_context_start = true,
+	        },
+               	 config = function()
+		    require("ibl").setup({ enabled = false }) -- Start disabled
+		  end,
+    },
     --Nightfox theme
     { "EdenEast/nightfox.nvim" },
+
     -- Nvim-Tree file explorer
     {
         'nvim-tree/nvim-tree.lua',
@@ -118,12 +139,28 @@ require('lazy').setup({
     }
 
 })
+
+-- load Deepseek module
+require('deepseek')
+
+-- keybinding for deepseek
+vim.keymap.set("v", "<leader>k", ":<C-u>DeepSeekExpand<CR>", { noremap = true, silent = true })
+
 -- Set key mapping for toggling Nvim-Tree in normal and visual mode
 vim.api.nvim_set_keymap('n', '<Leader>n', ':NvimTreeToggle<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('v', '<Leader>n', ':NvimTreeToggle<CR>', { noremap = true, silent = true })
 
 
---
+-- Set key mapping for toggling Nvim-Tree in normal and visual mode
+vim.g.indent_blankline_enabled = false
+
+function ToggleIndentLines()
+    vim.g.indent_blankline_enabled = not vim.g.indent_blankline_enabled
+    require("ibl").setup({ enabled = vim.g.indent_blankline_enabled })
+end
+
+vim.keymap.set("n", "<Leader>i", ToggleIndentLines, { desc = "Toggle Indent Lines" })
+
 
 require('lualine').setup {
   options = {
@@ -254,6 +291,12 @@ vim.keymap.set("n", "<leader>0", "<cmd>belowright split | terminal<CR>", { norem
 
 -- Map Ctrl-w to toggle from terminal to normal mode
 vim.keymap.set("t", "<C-w>", "<C-\\><C-n>", { noremap = true, silent = true })
+
+
+
+
+
+
 
 
 
