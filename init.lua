@@ -10,8 +10,10 @@ vim.api.nvim_set_keymap('n', '<leader>w', '"+y', { noremap = true, silent = true
 vim.api.nvim_set_keymap('v', '<leader>w', '"+y', { noremap = true, silent = true })
 
 
--- map the option key to ':w' (save file)
-vim.api.nvim_set_keymap('n', '<leader>w', ':w<CR>', { noremap = true, silent = true })
+-- map the '1' key to ':w' (save file)
+-- note this turns off motion controls for the '4' key
+vim.api.nvim_set_keymap('n', '1', ':w<CR>', { noremap = true, silent = true })
+
 
 -- Example key mappings for Telescope commands
 vim.api.nvim_set_keymap('n', '<leader>ff', "<cmd>lua require('telescope.builtin').find_files()<CR>", { noremap = true, silent = true })
@@ -37,6 +39,10 @@ vim.cmd('syntax on')
 -- Highlight TODO comments
 vim.api.nvim_command('highlight Todo guifg=Green ctermfg=Green')
 vim.api.nvim_command('match Todo /TODO:/')
+
+-- Map <leader> T to toggle the Todo highlight
+vim.api.nvim_set_keymap('n', '<leader>T', ':highlight Todo guifg=Green ctermfg=Green<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('v', '<leader>T', ':highlight Todo guifg=Green ctermfg=Green<CR>', { noremap = true, silent = true })
 
 -- Function to resize the current vertical window
 local function resize_current_window(width)
@@ -118,6 +124,33 @@ require('lazy').setup({
 		    require("ibl").setup({ enabled = false }) -- Start disabled
 		  end,
     },
+
+    -- Smear cursor
+    {
+	"sphamba/smear-cursor.nvim",
+
+	  opts = {
+	    -- Smear cursor when switching buffers or windows.
+	    smear_between_buffers = true,
+
+	    -- Smear cursor when moving within line or to neighbor lines.
+	    -- Use `min_horizontal_distance_smear` and `min_vertical_distance_smear` for finer control
+	    smear_between_neighbor_lines = true,
+
+	    -- Draw the smear in buffer space instead of screen space when scrolling
+	    scroll_buffer_space = true,
+
+	    -- Set to `true` if your font supports legacy computing symbols (block unicode symbols).
+	    -- Smears will blend better on all backgrounds.
+	    legacy_computing_symbols_support = false,
+
+	    -- Smear cursor in insert mode.
+	    -- See also `vertical_bar_cursor_insert_mode` and `distance_stop_animating_vertical_bar`.
+	    smear_insert_mode = true,
+    },
+
+
+    },
     --Nightfox theme
     { "EdenEast/nightfox.nvim" },
 
@@ -195,7 +228,7 @@ require('nightfox').setup({
     -- Compiled file's destination location
     compile_path = vim.fn.stdpath("cache") .. "/nightfox",
     compile_file_suffix = "_compiled", -- Compiled file suffix
-    transparent = false,     -- Disable setting background
+    transparent = true,     -- Disable setting background
     terminal_colors = true,  -- Set terminal colors (vim.g.terminal_color_*) used in `:terminal`
     dim_inactive = false,    -- Non focused panes set to alternative background
     module_default = true,   -- Default enable value for modules
@@ -291,6 +324,12 @@ vim.keymap.set("n", "<leader>0", "<cmd>belowright split | terminal<CR>", { norem
 
 -- Map Ctrl-w to toggle from terminal to normal mode
 vim.keymap.set("t", "<C-w>", "<C-\\><C-n>", { noremap = true, silent = true })
+
+
+
+
+
+
 
 
 
